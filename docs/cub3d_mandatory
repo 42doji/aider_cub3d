@@ -1,0 +1,55 @@
+**Mandatory Part Summary - cub3D**
+
+### **1. Overview**
+**Project Name:** cub3D
+**Objective:** Implement a first-person 3D maze navigation using ray-casting, inspired by *Wolfenstein 3D*.
+**Required Tools:** miniLibX, C programming, basic algorithms.
+
+### **2. Mandatory Requirements**
+#### **General Rules**
+- The project must be written in C and follow the Norm standard.
+- No memory leaks allowed; all allocated memory must be freed.
+- Must provide a `Makefile` with at least these rules: `all`, `clean`, `fclean`, `re`, `bonus`.
+- The game must be compiled with `-Wall -Wextra -Werror` flags.
+- The game must not crash unexpectedly (e.g., segmentation faults, bus errors).
+
+#### **Program Execution**
+- The program must be executed as follows:
+  ```shell
+  ./cub3D map.cub
+  ```
+- The first argument must be a map file with a `.cub` extension.
+
+#### **Game Features**
+- **3D graphical rendering** using ray-casting.
+- **Player controls:**
+  - `WASD` keys for movement.
+  - Left/right arrow keys to rotate the view.
+  - `ESC` to close the game.
+  - Clicking the window close button should also exit the game properly.
+- **Wall textures:** Different textures for walls based on their facing direction (North, South, East, West).
+- **Floor and ceiling colors** must be configurable.
+
+#### **Map File Specifications**
+- Map should contain only: `0` (empty space), `1` (walls), and `N/S/E/W` (player start position + orientation).
+- The map must be fully enclosed by walls.
+- The first part of the `.cub` file contains configurations such as:
+  - `NO ./path_to_north_texture`
+  - `SO ./path_to_south_texture`
+  - `WE ./path_to_west_texture`
+  - `EA ./path_to_east_texture`
+  - `F 220,100,0` (RGB values for floor color)
+  - `C 225,30,0` (RGB values for ceiling color)
+- If the file format is incorrect or the map is not enclosed, the program must exit with an error message.
+
+### **3. External Libraries and Functions**
+- Allowed functions: `open`, `close`, `read`, `write`, `printf`, `malloc`, `free`, `perror`, `strerror`, `exit`, `gettimeofday`.
+- Math library (`-lm`) and miniLibX are required.
+
+### **4. Error Handling**
+- Any misconfiguration in the `.cub` file should result in a clear error message.
+- The game must handle incorrect input files gracefully and exit without crashing.
+
+---
+This mandatory section ensures the game is functional, visually appropriate, and follows structured coding guidelines. Compliance with these rules is necessary before adding bonus features.
+
