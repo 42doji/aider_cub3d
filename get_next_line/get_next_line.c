@@ -51,18 +51,41 @@ static char	*extract_line(char **remainder)
 	return (line);
 }
 
+static ssize_t	read_and_update_remainder(int fd, char **remainder, char **temp)
+{
+	ssize_t	bytes_read;
+	char	*buffer;
+
+	buffer = malloc(BUFFER_SIZE + 1);
+	if (!buffer)
+		return (-1);
+	bytes_read = read(fd, buffer, BUFFER_SIZE);
+	if (bytes_read <= 0)
+	{
+		free(buffer);
+		return (bytes_read);
+	}
+	buffer[bytes_read] = '\0';
+	*temp = ft_strjoin(*remainder, buffer);
+	free(buffer);
+	if (!(*temp))
+	{
+		free(*remainder);
+		*remainder = NULL;
+		return (-1);
+	}
+	free(*remainder);
+	*remainder = *temp;
+	return (bytes_read);
+}
+
 char	*get_next_line(int fd)
 {
 	static char	*remainder[MAX_FD];
-	char		*buffer;
 	char		*temp;
 	ssize_t		bytes_read;
 
 	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0 || fcntl(fd, F_GETFL) == -1)
-		return (NULL);
-
-	buffer = malloc(BUFFER_SIZE + 1);
-	if (!buffer)
 		return (NULL);
 
 	if (!remainder[fd])
@@ -70,23 +93,12 @@ char	*get_next_line(int fd)
 	bytes_read = 1;  // Initialize to allow first iteration
 	while (bytes_read > 0 && !ft_strchr(remainder[fd], '\n'))
 	{
-		bytes_read = read(fd, buffer, BUFFER_SIZE);
-		if (bytes_read <= 0)
-			break ;
-		buffer[bytes_read] = '\0';
-		temp = ft_strjoin(remainder[fd], buffer);
-		if (!temp)
+		bytes_read = read_and_update_remainder(fd, &remainder[fd], &temp);
+		if (bytes_read == -1)
 		{
-			free(remainder[fd]);
-			remainder[fd] = NULL;
-			free(buffer);
 			return (NULL);
 		}
-		
-		free(remainder[fd]);
-		remainder[fd] = temp;
 	}
-	free(buffer);
 	if (bytes_read < 0)
 	{
 		free(remainder[fd]);
