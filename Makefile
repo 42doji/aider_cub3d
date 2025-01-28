@@ -5,49 +5,54 @@ SRC_DIR = src
 OBJ_DIR = obj
 INC_DIR = include
 
-SRC = $(wildcard $(SRC_DIR)/*.c)
-OBJ = $(SRC:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
+# Additional dependencies
+LIBFT_DIR = libft
+LIBFT = $(LIBFT_DIR)/libft.a
+
+GNL_DIR = get_next_line
+GNL = $(GNL_DIR)/gnl.a
+
+SRCS = $(wildcard $(SRC_DIR)/*.c)
+OBJS = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
 
 NAME = cub3D
 
-# Basic target definitions
+# Basic targets
 all: $(NAME)
 
 # Execution file build target
-$(NAME): $(LIBFT) $(GNL) $(OBJ)
-	$(CC) $(CFLAGS) -I $(INC_DIR) -I $(LIBFT_DIR)/include -I $(GNL_DIR)/include -c cub3D.c $(OBJ) -o $(NAME) -lm
+$(NAME): $(LIBFT) $(GNL) $(OBJS)
+	$(CC) $(CFLAGS) -I$(INC_DIR) -I$(LIBFT_DIR)/include -I$(GNL_DIR)/include \
+		$(OBJS) $(LIBFT) $(GNL) -o $(NAME) -lm
 
-# libft build target
-$(LIBFT):
-	make -C $(LIBFT_DIR)
+# Library build targets
+$(LIBFT): $(OBJS:$(SRCS)/%.c=libft.o)
+	$(CC) $(CFLAGS) -I$(INC_DIR) -I$(LIBFT_DIR)/include -I$(GNL_DIR)/include \
+		$(OBJS) -c -o libft.o
 
-# get_next_line build target
-$(GNL):
--make -C $(GNL_DIR)
+$(GNL): $(OBJS:$(SRCS)/%.c=gnl.o)
+	$(CC) $(CFLAGS) -I$(INC_DIR) -I$(LIBFT_DIR)/include -I$(GNL_DIR)/include \
+		$(OBJS) -c -o gnl.o
 
-# Objects files generation rules
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
-	$(CC) $(CFLAGS) -I $(INC_DIR) -I $(LIBFT_DIR)/include -I $(GNL_DIR)/include -c $< -o $@
+# Object file build target
+$(OBJS): $(SRCS:$(SRC_DIR)/%.c=*.o)
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# Objects directory creation rule
+# Directories creation targets
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
-# Clean target
+# Clean targets
 clean:
 	rm -rf $(OBJ_DIR)
-	$(CC) $(CFLAGS) -I $(INC_DIR) -I $(LIBFT_DIR)/include -I $(GNL_DIR)/include -c cub3D.c $(OBJ) -o $(NAME) -lm
-	rm -f $(NAME)
+
+re:
+	finish
 
 # Full clean target
 fclean: clean
-	rm -rf $(NAME)
-	$(CC) $(CFLAGS) -I $(INC_DIR) -I $(LIBFT_DIR)/include -I $(GNL_DIR)/include -c cub3D.c $(OBJ) -o $(NAME) -lm
 	rm -f $(NAME)
+	finish
 
-# Recompute target
-re: fclean all
-
-# Additional targets
+# Rebuild target
 .PHONY: all clean fclean re
-```
