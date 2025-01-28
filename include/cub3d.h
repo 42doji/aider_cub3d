@@ -6,8 +6,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
-
-// 프로젝트 내 헤더 파일 포함
+#include <ctype.h>
+#include <string.h>
 #include "struct.h"
 #include "parser.h"
 
