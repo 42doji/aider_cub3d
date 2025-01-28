@@ -13,12 +13,6 @@
 #include "get_next_line.h"
 #include <fcntl.h>
 
-/**
- * @brief Extracts a line from the remainder buffer.
- * 
- * @param remainder The buffer containing the remaining data.
- * @return The extracted line, including the newline character if present.
- */
 static char	*extract_line(char **remainder)
 {
 	char	*line;
@@ -54,16 +48,9 @@ static char	*extract_line(char **remainder)
 		free(*remainder);
 		*remainder = NULL;
 	}
-
 	return (line);
 }
 
-/**
- * @brief Reads a line from the given file descriptor.
- * 
- * @param fd File descriptor to read from.
- * @return A line read from the file, or NULL if end of file or error.
- */
 char	*get_next_line(int fd)
 {
 	static char	*remainder[MAX_FD];
@@ -71,7 +58,6 @@ char	*get_next_line(int fd)
 	char		*temp;
 	ssize_t		bytes_read;
 
-	// Validate file descriptor
 	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0 || fcntl(fd, F_GETFL) == -1)
 		return (NULL);
 
@@ -79,17 +65,14 @@ char	*get_next_line(int fd)
 	if (!buffer)
 		return (NULL);
 
-	// Initialize remainder if not already set
 	if (!remainder[fd])
 		remainder[fd] = ft_strdup("");
-
 	bytes_read = 1;  // Initialize to allow first iteration
 	while (bytes_read > 0 && !ft_strchr(remainder[fd], '\n'))
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read <= 0)
 			break ;
-
 		buffer[bytes_read] = '\0';
 		temp = ft_strjoin(remainder[fd], buffer);
 		if (!temp)
@@ -103,10 +86,7 @@ char	*get_next_line(int fd)
 		free(remainder[fd]);
 		remainder[fd] = temp;
 	}
-
 	free(buffer);
-
-	// Handle read errors
 	if (bytes_read < 0)
 	{
 		free(remainder[fd]);
