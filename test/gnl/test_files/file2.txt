@@ -1,0 +1,3 @@
+Another file.
+With its own lines.
+End of file2.
