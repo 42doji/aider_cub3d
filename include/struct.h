@@ -1,15 +1,25 @@
-#ifndef STRUCT_H
-#define STRUCT_H
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   struct.h                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: doji <doji@student.42gyeongsan.kr>         +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/01/29 00:45:15 by doji              #+#    #+#             */
+/*   Updated: 2025/01/29 00:45:35 by doji             ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
 
-// 맵 정보를 저장할 구조체
+#ifndef STRUCT_H
+# define STRUCT_H
+
 typedef struct s_map
 {
     char **grid;
     int rows;
     int cols;
-} t_map;
+}	t_map;
 
-// 파싱 결과를 저장할 구조체
 typedef struct s_game
 {
     t_map map;
@@ -17,7 +27,6 @@ typedef struct s_game
     double player_y;   // 플레이어의 Y 좌표
     double dir_x;      // 플레이어의 방향 벡터 X
     double dir_y;      // 플레이어의 방향 벡터 Y
-    // 추가적인 게임 관련 구조체 필드들
 } t_game;
 
-#endif // STRUCT_H
+#endif 
