@@ -11,7 +11,14 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
+#include <fcntl.h>
 
+/**
+ * @brief Extracts a line from the remainder buffer.
+ * 
+ * @param remainder The buffer containing the remaining data.
+ * @return The extracted line, including the newline character if present.
+ */
 static char	*extract_line(char **remainder)
 {
 	char	*line;
@@ -25,13 +32,25 @@ static char	*extract_line(char **remainder)
 	if (newline_pos)
 	{
 		line = ft_substr(*remainder, 0, newline_pos - *remainder + 1);
+		if (!line)
+			return (NULL);
+		
 		temp = ft_strdup(newline_pos + 1);
+		if (!temp)
+		{
+			free(line);
+			return (NULL);
+		}
+		
 		free(*remainder);
 		*remainder = temp;
 	}
 	else
 	{
 		line = ft_strdup(*remainder);
+		if (!line)
+			return (NULL);
+		
 		free(*remainder);
 		*remainder = NULL;
 	}
@@ -39,6 +58,12 @@ static char	*extract_line(char **remainder)
 	return (line);
 }
 
+/**
+ * @brief Reads a line from the given file descriptor.
+ * 
+ * @param fd File descriptor to read from.
+ * @return A line read from the file, or NULL if end of file or error.
+ */
 char	*get_next_line(int fd)
 {
 	static char	*remainder[MAX_FD];
@@ -46,33 +71,42 @@ char	*get_next_line(int fd)
 	char		*temp;
 	ssize_t		bytes_read;
 
-	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0)
+	// Validate file descriptor
+	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0 || fcntl(fd, F_GETFL) == -1)
 		return (NULL);
 
 	buffer = malloc(BUFFER_SIZE + 1);
 	if (!buffer)
 		return (NULL);
 
-	while (1)
+	// Initialize remainder if not already set
+	if (!remainder[fd])
+		remainder[fd] = ft_strdup("");
+
+	bytes_read = 1;  // Initialize to allow first iteration
+	while (bytes_read > 0 && !ft_strchr(remainder[fd], '\n'))
 	{
 		bytes_read = read(fd, buffer, BUFFER_SIZE);
 		if (bytes_read <= 0)
 			break ;
 
 		buffer[bytes_read] = '\0';
-		if (!remainder[fd])
-			remainder[fd] = ft_strdup("");
-
 		temp = ft_strjoin(remainder[fd], buffer);
+		if (!temp)
+		{
+			free(remainder[fd]);
+			remainder[fd] = NULL;
+			free(buffer);
+			return (NULL);
+		}
+		
 		free(remainder[fd]);
 		remainder[fd] = temp;
-
-		if (ft_strchr(remainder[fd], '\n'))
-			break ;
 	}
 
 	free(buffer);
 
+	// Handle read errors
 	if (bytes_read < 0)
 	{
 		free(remainder[fd]);
