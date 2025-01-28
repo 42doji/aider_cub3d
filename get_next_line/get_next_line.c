@@ -12,85 +12,73 @@
 
 #include "get_next_line.h"
 
-void	_mmove(char *dst, char *src, int size)
+static char	*extract_line(char **remainder)
 {
-	int	i;
+	char	*line;
+	char	*newline_pos;
+	char	*temp;
 
-	i = 0;
-	if (dst < src)
+	if (!*remainder)
+		return (NULL);
+
+	newline_pos = ft_strchr(*remainder, '\n');
+	if (newline_pos)
 	{
-		while (i < size)
-		{
-			dst[i] = src[i];
-			i++;
-		}
+		line = ft_substr(*remainder, 0, newline_pos - *remainder + 1);
+		temp = ft_strdup(newline_pos + 1);
+		free(*remainder);
+		*remainder = temp;
 	}
 	else
 	{
-		i = size - 1;
-		while (i >= 0)
-		{
-			dst[i] = src[i];
-			i--;
-		}
+		line = ft_strdup(*remainder);
+		free(*remainder);
+		*remainder = NULL;
 	}
-}
 
-char	*_rem_check(char **rem, char *line)
-{
-	int	n_idx;
-
-	n_idx = _chr(*rem, '\n');
-	if (n_idx >= 0)
-	{
-		line = _dup(*rem);
-		line[n_idx + 1] = '\0';
-		_mmove(*rem, *rem + n_idx + 1, _len(*rem + n_idx + 1) + 1);
-	}
-	else if (*rem)
-	{
-		if (**rem)
-			line = _dup(*rem);
-		free(*rem);
-		*rem = NULL;
-	}
-	return (line);
-}
-
-char	*_return_line(int idx, int fd, char **rem)
-{
-	char	*line;
-
-	line = _dup(rem[fd]);
-	line[idx + 1] = '\0';
-	_mmove(rem[fd], rem[fd] + idx + 1, _len(rem[fd] + idx + 1) + 1);
 	return (line);
 }
 
 char	*get_next_line(int fd)
 {
-	static char	*rem[1025];
-	char		*line;
-	char		*buf;
-	int			ret;
-	int			idx;
+	static char	*remainder[MAX_FD];
+	char		*buffer;
+	char		*temp;
+	ssize_t		bytes_read;
 
-	line = NULL;
-	buf = malloc(BUFFER_SIZE + 1);
-	ret = read(fd, buf, BUFFER_SIZE);
-	while (ret > 0)
+	if (fd < 0 || fd >= MAX_FD || BUFFER_SIZE <= 0)
+		return (NULL);
+
+	buffer = malloc(BUFFER_SIZE + 1);
+	if (!buffer)
+		return (NULL);
+
+	while (1)
 	{
-		buf[ret] = '\0';
-		rem[fd] = _join_free(&rem[fd], buf);
-		idx = _chr(rem[fd], '\n');
-		if (idx >= 0)
-		{
-			line = _return_line(idx, fd, rem);
-			free(buf);
-			return (line);
-		}
-		ret = read(fd, buf, BUFFER_SIZE);
+		bytes_read = read(fd, buffer, BUFFER_SIZE);
+		if (bytes_read <= 0)
+			break ;
+
+		buffer[bytes_read] = '\0';
+		if (!remainder[fd])
+			remainder[fd] = ft_strdup("");
+
+		temp = ft_strjoin(remainder[fd], buffer);
+		free(remainder[fd]);
+		remainder[fd] = temp;
+
+		if (ft_strchr(remainder[fd], '\n'))
+			break ;
 	}
-	free(buf);
-	return (_rem_check(&rem[fd], line));
+
+	free(buffer);
+
+	if (bytes_read < 0)
+	{
+		free(remainder[fd]);
+		remainder[fd] = NULL;
+		return (NULL);
+	}
+
+	return (extract_line(&remainder[fd]));
 }

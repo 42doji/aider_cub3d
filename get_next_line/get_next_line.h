@@ -11,25 +11,22 @@
 /* ************************************************************************** */
 
 #ifndef GET_NEXT_LINE_H
-
 # define GET_NEXT_LINE_H
 
 # include <stdlib.h>
 # include <unistd.h>
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 10 
+#  define BUFFER_SIZE 42
 # endif
 
+# define MAX_FD 1024
+
 char	*get_next_line(int fd);
-int		_len(char *s);
-int		_chr(char *s, char c);
-char	*_dup(char *str);
-int		_lcpy(char *dst, char *src, int size);
-char	*_join_free(char **s1, char *s2);
-void	_mmove(char *dst, char *src, int size);
-char	*_rem_check(char **rem, char *line);
-char	*get_next_line(int fd);
-char	*_return_line(int idx, int fd, char **rem);
+char	*ft_strjoin(char const *s1, char const *s2);
+char	*ft_substr(char const *s, unsigned int start, size_t len);
+size_t	ft_strlen(const char *s);
+char	*ft_strchr(const char *s, int c);
+char	*ft_strdup(const char *s);
 
 #endif
