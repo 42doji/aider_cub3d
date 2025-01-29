@@ -69,7 +69,6 @@ int parse_texture(char **texture, char *path)
     }
     *texture = trimmed_path;
     printf("Parsed texture path: '%s'\n", *texture);
-    printf("Parsed color: R=%d, G=%d, B=%d\n", r, g, b);
     return (1);
 }
 
