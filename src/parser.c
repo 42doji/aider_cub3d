@@ -259,6 +259,9 @@ int parse_map(t_game *game, int fd)
             {
                 ft_putendl_fd("Error: Memory allocation failed for map line.", 2);
                 free(line);
+                for (int i = 0; i < row; i++)
+                    free(game->map.grid[i]);
+                free(game->map.grid);
                 return (0);
             }
             row++;
@@ -316,6 +319,7 @@ int parse_map(t_game *game, int fd)
          cleanup_parser(game);
          return (0);
      }
+     lseek(fd, 0, SEEK_SET); // Reset file descriptor to the beginning
      if (!parse_map(game, fd))
      {
          close(fd);
