@@ -5,7 +5,7 @@ SRC_DIR = src
 OBJ_DIR = obj
 INC_DIR = include
 
-LIBFT_DIR = libftx
+LIBFT_DIR = libft
 LIBFT = $(LIBFT_DIR)/libft.a
 
 
