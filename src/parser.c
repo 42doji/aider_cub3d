@@ -179,6 +179,16 @@ int parse_color(int *color, char *value)
          }
          free(line);
      }
+     // Ensure the file descriptor is at the start of the map section
+     while ((line = get_next_line(fd)) != NULL)
+     {
+         if (ft_strlen(line) > 0 && !is_all_whitespace(line))
+         {
+             free(line);
+             break;
+         }
+         free(line);
+     }
      if (!validate_configuration(game, parsed_elements))
          return (0);
      return (1);
