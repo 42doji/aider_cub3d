@@ -28,12 +28,14 @@ $(OBJ_DIR):
 $(LIBFT):
 	$(MAKE) -C $(LIBFT_DIR)
 
+
 clean:
 	rm -rf $(OBJ_DIR)
 	$(MAKE) -C $(LIBFT_DIR) clean
 
 fclean: clean
 	rm -f $(NAME)
+	$(MAKE) -C $(LIBFT_DIR) fclean
 
 # Rebuild
 re: fclean all

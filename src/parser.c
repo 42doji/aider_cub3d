@@ -10,4 +10,240 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+ #include "../include/parser.h"
+ #include "../libft/libft.h"
 
+ int check_file_extension(const char *filename)
+ {
+     size_t  len;
+
+     if (!filename)
+         return (0);
+     len = ft_strlen(filename);
+     if (len < 4)
+         return (0);
+     if (ft_strncmp(&filename[len - 4], ".cub", 4) != 0)
+         return (0);
+     return (1);
+ }
+
+ int is_all_whitespace(char *line)
+ {
+     while (*line)
+     {
+         if (!ft_isspace(*line))
+             return (0);
+         line++;
+     }
+     return (1);
+ }
+
+ int is_configuration_line(char *line)
+ {
+     if (ft_strncmp(line, "NO ", 3) == 0 || ft_strncmp(line, "SO ", 3) == 0 ||
+         ft_strncmp(line, "WE ", 3) == 0 || ft_strncmp(line, "EA ", 3) == 0 ||
+         ft_strncmp(line, "F ", 2) == 0 || ft_strncmp(line, "C ", 2) == 0)
+         return (1);
+     return (0);
+ }
+
+ int parse_texture(char **texture, char *path)
+ {
+     char *trimmed_path;
+
+     trimmed_path = ft_strtrim(path, " \t\n");
+     if (!trimmed_path)
+         return (0);
+     *texture = trimmed_path;
+     return (1);
+ }
+
+ int parse_color(int *color, char *value)
+ {
+     char **rgb;
+     int r, g, b;
+
+     rgb = ft_split(ft_strtrim(value, " \t\n"), ',');
+     if (!rgb || !rgb[0] || !rgb[1] || !rgb[2] || rgb[3])
+     {
+         // Free memory if split was successful
+         if (rgb)
+         {
+             for (int i = 0; rgb[i]; i++)
+                 free(rgb[i]);
+             free(rgb);
+         }
+         return (0);
+     }
+
+     r = ft_atoi(rgb[0]);
+     g = ft_atoi(rgb[1]);
+     b = ft_atoi(rgb[2]);
+
+     // Free split result
+     for (int i = 0; rgb[i]; i++)
+         free(rgb[i]);
+     free(rgb);
+
+     if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
+         return (0);
+
+     *color = (r << 16) | (g << 8) | b;
+     return (1);
+ }
+
+ int handle_configuration_line(t_game *game, char *line)
+ {
+     if (ft_strncmp(line, "NO ", 3) == 0)
+         return (parse_texture(&game->north_texture, line + 3));
+     else if (ft_strncmp(line, "SO ", 3) == 0)
+         return (parse_texture(&game->south_texture, line + 3));
+     else if (ft_strncmp(line, "WE ", 3) == 0)
+         return (parse_texture(&game->west_texture, line + 3));
+     else if (ft_strncmp(line, "EA ", 3) == 0)
+         return (parse_texture(&game->east_texture, line + 3));
+     else if (ft_strncmp(line, "F ", 2) == 0)
+         return (parse_color(&game->floor_color, line + 2));
+     else if (ft_strncmp(line, "C ", 2) == 0)
+         return (parse_color(&game->ceiling_color, line + 2));
+     return (0);
+ }
+
+ int validate_configuration(t_game *game, int parsed_elements)
+ {
+     (void)game;
+
+     if (parsed_elements < 6)
+     {
+         ft_putendl_fd("Error: Missing configuration elements.", 2);
+         return (0);
+     }
+     // 추가 유효성 검사 필요
+     return (1);
+ }
+
+ int parse_configuration(t_game *game, int fd)
+ {
+     char    *line;
+     int     parsed_elements;
+
+     parsed_elements = 0;
+     while ((line = get_next_line(fd)) != NULL)
+     {
+         if (ft_strlen(line) == 0 || is_all_whitespace(line))
+         {
+             free(line);
+             continue;
+         }
+         if (is_configuration_line(line))
+         {
+             if (!handle_configuration_line(game, line))
+             {
+                 free(line);
+                 return (0);
+             }
+             parsed_elements++;
+         }
+         else
+         {
+             free(line);
+             break;
+         }
+         free(line);
+     }
+     if (!validate_configuration(game, parsed_elements))
+         return (0);
+     return (1);
+ }
+
+ int validate_map(t_game *game)
+ {
+     // 기본적인 맵 유효성 검사 로직
+     // 추후 더 복잡한 검증 필요
+     (void)game;
+     return (1);
+ }
+
+ int parse_map(t_game *game, int fd)
+ {
+     char    *line;
+     int     row;
+
+     // 맵 그리드 메모리 할당 (최대 크기로 가정)
+     game->map.grid = ft_calloc(100, sizeof(char *));
+     if (!game->map.grid)
+         return (0);
+
+     row = 0;
+     while ((line = get_next_line(fd)) != NULL)
+     {
+         if (ft_strlen(line) > 0 && !is_all_whitespace(line))
+         {
+             game->map.grid[row] = ft_strdup(line);
+             if (!game->map.grid[row])
+             {
+                 free(line);
+                 return (0);
+             }
+             row++;
+         }
+         free(line);
+     }
+     game->map.rows = row;
+     // 추후 열 계산 함수 구현 필요
+     game->map.cols = 0;
+
+     if (!validate_map(game))
+         return (0);
+     return (1);
+ }
+
+ void    cleanup_parser(t_game *game)
+ {
+     if (game->map.grid)
+     {
+         for (int i = 0; i < game->map.rows; i++)
+         {
+             free(game->map.grid[i]);
+         }
+         free(game->map.grid);
+     }
+     free(game->north_texture);
+     free(game->south_texture);
+     free(game->west_texture);
+     free(game->east_texture);
+ }
+
+ int init_parser(t_game *game, const char *file_path)
+ {
+     int fd;
+
+     // 초기화
+     ft_memset(game, 0, sizeof(t_game));
+
+     if (!check_file_extension(file_path))
+     {
+         ft_putendl_fd("Error: Configuration file must have a .cub extension.", 2);
+         return (0);
+     }
+     fd = open(file_path, O_RDONLY);
+     if (fd < 0)
+     {
+         perror("Error opening file");
+         return (0);
+     }
+     if (!parse_configuration(game, fd))
+     {
+         close(fd);
+         cleanup_parser(game);
+         return (0);
+     }
+     if (!parse_map(game, fd))
+     {
+         close(fd);
+         cleanup_parser(game);
+         return (0);
+     }
+     close(fd);
+     return (1);
+ }
