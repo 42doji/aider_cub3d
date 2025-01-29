@@ -158,13 +158,33 @@
      return (1);
  }
 
- int validate_map(t_game *game)
- {
-     // 기본적인 맵 유효성 검사 로직
-     // 추후 더 복잡한 검증 필요
-     (void)game;
-     return (1);
- }
+int validate_map(t_game *game)
+{
+    int player_count = 0;
+
+    for (int i = 0; i < game->map.rows; i++)
+    {
+        for (int j = 0; j < ft_strlen(game->map.grid[i]); j++)
+        {
+            char c = game->map.grid[i][j];
+            if (c == 'N' || c == 'S' || c == 'E' || c == 'W')
+                player_count++;
+            if ((i == 0 || i == game->map.rows - 1 || j == 0 || j == ft_strlen(game->map.grid[i]) - 1) && c != '1')
+            {
+                ft_putendl_fd("Error: Map is not enclosed by walls.", 2);
+                return (0);
+            }
+        }
+    }
+
+    if (player_count != 1)
+    {
+        ft_putendl_fd("Error: Map must have exactly one player start position.", 2);
+        return (0);
+    }
+
+    return (1);
+}
 
  int parse_map(t_game *game, int fd)
  {
