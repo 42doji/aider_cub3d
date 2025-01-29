@@ -196,7 +196,7 @@ int validate_map(t_game *game) {
     int player_x = -1, player_y = -1;
 
     for (int i = 0; i < game->map.rows; i++) {
-        for (int j = 0; j < ft_strlen(game->map.grid[i]); j++) {
+        for (size_t j = 0; j < ft_strlen(game->map.grid[i]); j++) {
             char c = game->map.grid[i][j];
             if (c == 'N' || c == 'S' || c == 'E' || c == 'W') {
                 player_count++;
