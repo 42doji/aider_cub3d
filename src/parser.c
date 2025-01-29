@@ -204,14 +204,14 @@ int validate_map(t_game *game) {
                 player_y = i;
             }
             if (c != '0' && c != '1' && c != 'N' && c != 'S' && c != 'E' && c != 'W' && c != ' ') {
-                ft_putendl_fd("Error: Invalid character in map.", 2);
+                fprintf(stderr, "Error: Invalid character '%c' in map at row %d, column %zu.\n", c, i, j);
                 return 0;
             }
         }
     }
 
     if (player_count != 1) {
-        ft_putendl_fd("Error: Map must have exactly one player start position.", 2);
+        fprintf(stderr, "Error: Map must have exactly one player start position. Found %d.\n", player_count);
         return 0;
     }
 
@@ -221,7 +221,7 @@ int validate_map(t_game *game) {
     }
 
     if (flood_fill(game->map.grid, visited, player_x, player_y, game->map.rows, ft_strlen(game->map.grid[0]))) {
-        ft_putendl_fd("Error: Map is not enclosed by walls.", 2);
+        fprintf(stderr, "Error: Map is not enclosed by walls. Issue found starting at row %d, column %d.\n", player_y, player_x);
         for (int i = 0; i < game->map.rows; i++) {
             free(visited[i]);
         }
