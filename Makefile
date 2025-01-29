@@ -22,9 +22,6 @@ $(NAME): $(LIBFT) $(OBJS)
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c | $(OBJ_DIR)
 	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
 
-$(OBJ_DIR)/%.o:  $(OBJ_DIR)
-	$(CC) $(CFLAGS) -I$(INC_DIR) -c $< -o $@
-
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
@@ -37,7 +34,6 @@ clean:
 
 fclean: clean
 	rm -f $(NAME)
-	$(MAKE) -C $(LIBFT_DIR) fclean
 
 # Rebuild
 re: fclean all
