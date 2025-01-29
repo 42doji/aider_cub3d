@@ -13,10 +13,15 @@
 #ifndef LIBFT_H
 # define LIBFT_H
 
+# ifndef BUFFER_SIZE
+#  define BUFFER_SIZE 1000
+# endif
+
 # include <stdlib.h>
 # include <unistd.h>
 # include <limits.h>
 
+char	*get_next_line(int fd);
 int		ft_isalpha(int c);
 int		ft_isdigit(int c);
 int		ft_isalnum(int c);
