@@ -13,19 +13,20 @@
  #include "../include/parser.h"
  #include "../libft/libft.h"
 
- int check_file_extension(const char *filename)
- {
-     size_t  len;
+int check_file_extension(const char *filename)
+{
+    if (!filename)
+        return (0);
 
-     if (!filename)
-         return (0);
-     len = ft_strlen(filename);
-     if (len < 4)
-         return (0);
-     if (ft_strncmp(&filename[len - 4], ".cub", 4) != 0)
-         return (0);
-     return (1);
- }
+    const char *extension = ".cub";
+    size_t len = ft_strlen(filename);
+    size_t ext_len = ft_strlen(extension);
+
+    if (len < ext_len)
+        return (0);
+
+    return (ft_strncmp(&filename[len - ext_len], extension, ext_len) == 0);
+}
 
  int is_all_whitespace(char *line)
  {
