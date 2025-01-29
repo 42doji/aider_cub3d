@@ -319,7 +319,14 @@ int parse_map(t_game *game, int fd)
          cleanup_parser(game);
          return (0);
      }
-     lseek(fd, 0, SEEK_SET); // Reset file descriptor to the beginning
+     close(fd);
+     fd = open(file_path, O_RDONLY);
+     if (fd < 0)
+     {
+         perror("Error reopening file");
+         cleanup_parser(game);
+         return (0);
+     }
      if (!parse_map(game, fd))
      {
          close(fd);
