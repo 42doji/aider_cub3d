@@ -190,10 +190,6 @@ int validate_map(t_game *game)
                 ft_putendl_fd("Error: Map is not enclosed by walls.", 2);
                 return (0);
             }
-            {
-                ft_putendl_fd("Error: Map is not enclosed by walls.", 2);
-                return (0);
-            }
         }
     }
 
