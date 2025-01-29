@@ -286,7 +286,7 @@ int parse_map(t_game *game, int fd)
         printf("Read map line: '%s'\n", line);
         char *trimmed_line = ft_strtrim(line, " \t\r\n");
         free(line);
-        if (ft_strlen(trimmed_line) > 0 && !is_all_whitespace(trimmed_line))
+        if (trimmed_line && ft_strlen(trimmed_line) > 0 && !is_all_whitespace(trimmed_line))
         {
             game->map.grid[row] = ft_strdup(trimmed_line);
             if (!game->map.grid[row])
