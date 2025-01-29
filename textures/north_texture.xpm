@@ -1,0 +1,10 @@
+/* XPM */
+static char * north_texture_xpm[] = {
+"4 4 2 1",
+" 	c None",
+".	c #FF0000",
+"....",
+".  .",
+".  .",
+"...."
+};
