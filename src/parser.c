@@ -48,52 +48,62 @@ int check_file_extension(const char *filename)
      return (0);
  }
 
- int parse_texture(char **texture, char *path)
- {
-     char *trimmed_path;
+int parse_texture(char **texture, char *path)
+{
+    char *trimmed_path;
 
-     trimmed_path = ft_strtrim(path, " \t\n");
-     if (!trimmed_path)
-         return (0);
-     *texture = trimmed_path;
-     return (1);
- }
+    trimmed_path = ft_strtrim(path, " \t\n");
+    if (!trimmed_path)
+    {
+        ft_putendl_fd("Error: Memory allocation failed for texture path.", 2);
+        return (0);
+    }
+    *texture = trimmed_path;
+    return (1);
+}
 
- int parse_color(int *color, char *value)
- {
-     char **rgb;
-     int r, g, b;
+int parse_color(int *color, char *value)
+{
+    char **rgb;
+    int r, g, b;
 
-     char *trimmed_value = ft_strtrim(value, " \t\n");
-     rgb = ft_split(trimmed_value, ',');
-     free(trimmed_value);
-     if (!rgb || !rgb[0] || !rgb[1] || !rgb[2] || rgb[3])
-     {
-         // Free memory if split was successful
-         if (rgb)
-         {
-             for (int i = 0; rgb[i]; i++)
-                 free(rgb[i]);
-             free(rgb);
-         }
-         return (0);
-     }
+    char *trimmed_value = ft_strtrim(value, " \t\n");
+    if (!trimmed_value)
+    {
+        ft_putendl_fd("Error: Memory allocation failed for color value.", 2);
+        return (0);
+    }
+    rgb = ft_split(trimmed_value, ',');
+    free(trimmed_value);
+    if (!rgb || !rgb[0] || !rgb[1] || !rgb[2] || rgb[3])
+    {
+        ft_putendl_fd("Error: Invalid color format. Expected format: R,G,B", 2);
+        if (rgb)
+        {
+            for (int i = 0; rgb[i]; i++)
+                free(rgb[i]);
+            free(rgb);
+        }
+        return (0);
+    }
 
-     r = ft_atoi(rgb[0]);
-     g = ft_atoi(rgb[1]);
-     b = ft_atoi(rgb[2]);
+    r = ft_atoi(rgb[0]);
+    g = ft_atoi(rgb[1]);
+    b = ft_atoi(rgb[2]);
 
-     // Free split result
-     for (int i = 0; rgb[i]; i++)
-         free(rgb[i]);
-     free(rgb);
+    for (int i = 0; rgb[i]; i++)
+        free(rgb[i]);
+    free(rgb);
 
-     if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
-         return (0);
+    if (r < 0 || r > 255 || g < 0 || g > 255 || b < 0 || b > 255)
+    {
+        ft_putendl_fd("Error: Color values must be between 0 and 255.", 2);
+        return (0);
+    }
 
-     *color = (r << 16) | (g << 8) | b;
-     return (1);
- }
+    *color = (r << 16) | (g << 8) | b;
+    return (1);
+}
 
  int handle_configuration_line(t_game *game, char *line)
  {
@@ -187,39 +197,44 @@ int validate_map(t_game *game)
     return (1);
 }
 
- int parse_map(t_game *game, int fd)
- {
-     char    *line;
-     int     row;
+int parse_map(t_game *game, int fd)
+{
+    char    *line;
+    int     row;
 
-     // 맵 그리드 메모리 할당 (최대 크기로 가정)
-     game->map.grid = ft_calloc(100, sizeof(char *));
-     if (!game->map.grid)
-         return (0);
+    game->map.grid = ft_calloc(100, sizeof(char *));
+    if (!game->map.grid)
+    {
+        ft_putendl_fd("Error: Memory allocation failed for map grid.", 2);
+        return (0);
+    }
 
-     row = 0;
-     while ((line = get_next_line(fd)) != NULL)
-     {
-         if (ft_strlen(line) > 0 && !is_all_whitespace(line))
-         {
-             game->map.grid[row] = ft_strdup(line);
-             if (!game->map.grid[row])
-             {
-                 free(line);
-                 return (0);
-             }
-             row++;
-         }
-         free(line);
-     }
-     game->map.rows = row;
-     // 추후 열 계산 함수 구현 필요
-     game->map.cols = 0;
+    row = 0;
+    while ((line = get_next_line(fd)) != NULL)
+    {
+        if (ft_strlen(line) > 0 && !is_all_whitespace(line))
+        {
+            game->map.grid[row] = ft_strdup(line);
+            if (!game->map.grid[row])
+            {
+                ft_putendl_fd("Error: Memory allocation failed for map line.", 2);
+                free(line);
+                return (0);
+            }
+            row++;
+        }
+        free(line);
+    }
+    game->map.rows = row;
+    game->map.cols = 0;
 
-     if (!validate_map(game))
-         return (0);
-     return (1);
- }
+    if (!validate_map(game))
+    {
+        ft_putendl_fd("Error: Map validation failed.", 2);
+        return (0);
+    }
+    return (1);
+}
 
  void    cleanup_parser(t_game *game)
  {
