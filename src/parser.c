@@ -16,16 +16,25 @@
 int check_file_extension(const char *filename)
 {
     if (!filename)
+    {
+        ft_putendl_fd("Error: Filename is NULL.", 2);
         return (0);
+    }
 
     const char *extension = ".cub";
     size_t len = ft_strlen(filename);
     size_t ext_len = ft_strlen(extension);
 
     if (len < ext_len)
+    {
+        ft_putendl_fd("Error: Filename is too short to have a valid extension.", 2);
         return (0);
+    }
 
-    return (ft_strncmp(&filename[len - ext_len], extension, ext_len) == 0);
+    int result = (ft_strncmp(&filename[len - ext_len], extension, ext_len) == 0);
+    if (!result)
+        ft_putendl_fd("Error: Invalid file extension. Expected .cub", 2);
+    return result;
 }
 
  int is_all_whitespace(char *line)
@@ -59,6 +68,8 @@ int parse_texture(char **texture, char *path)
         return (0);
     }
     *texture = trimmed_path;
+    printf("Parsed texture path: '%s'\n", *texture);
+    printf("Parsed color: R=%d, G=%d, B=%d\n", r, g, b);
     return (1);
 }
 
@@ -107,6 +118,7 @@ int parse_color(int *color, char *value)
 
  int handle_configuration_line(t_game *game, char *line)
  {
+     printf("Handling configuration line: '%s'\n", line);
      if (ft_strncmp(line, "NO ", 3) == 0)
          return (parse_texture(&game->north_texture, line + 3));
      else if (ft_strncmp(line, "SO ", 3) == 0)
@@ -119,6 +131,7 @@ int parse_color(int *color, char *value)
          return (parse_color(&game->floor_color, line + 2));
      else if (ft_strncmp(line, "C ", 2) == 0)
          return (parse_color(&game->ceiling_color, line + 2));
+     ft_putendl_fd("Error: Unknown configuration line.", 2);
      return (0);
  }
 
@@ -143,8 +156,10 @@ int parse_color(int *color, char *value)
      parsed_elements = 0;
      while ((line = get_next_line(fd)) != NULL)
      {
+         printf("Read line: '%s'\n", line);
          if (ft_strlen(line) == 0 || is_all_whitespace(line))
          {
+             printf("Skipping empty or whitespace line.\n");
              free(line);
              continue;
          }
@@ -159,6 +174,7 @@ int parse_color(int *color, char *value)
          }
          else
          {
+             printf("Non-configuration line encountered, stopping configuration parsing.\n");
              free(line);
              break;
          }
@@ -196,6 +212,7 @@ int validate_map(t_game *game) {
     int player_x = -1, player_y = -1;
 
     for (int i = 0; i < game->map.rows; i++) {
+        printf("Validating map row %d: '%s'\n", i + 1, game->map.grid[i]);
         for (size_t j = 0; j < ft_strlen(game->map.grid[i]); j++) {
             char c = game->map.grid[i][j];
             if (c == 'N' || c == 'S' || c == 'E' || c == 'W') {
@@ -209,6 +226,7 @@ int validate_map(t_game *game) {
             }
         }
     }
+    printf("Player start position found at row %d, column %d.\n", player_y + 1, player_x + 1);
 
     if (player_count != 1) {
         fprintf(stderr, "Error: Map must have exactly one player start position. Found %d.\n", player_count);
@@ -252,6 +270,7 @@ int parse_map(t_game *game, int fd)
     row = 0;
     while ((line = get_next_line(fd)) != NULL)
     {
+        printf("Read map line: '%s'\n", line);
         if (ft_strlen(line) > 0 && !is_all_whitespace(line))
         {
             game->map.grid[row] = ft_strdup(line);
@@ -264,6 +283,7 @@ int parse_map(t_game *game, int fd)
                 free(game->map.grid);
                 return (0);
             }
+            printf("Stored map line %d: '%s'\n", row + 1, game->map.grid[row]);
             row++;
         }
         free(line);
