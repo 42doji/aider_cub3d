@@ -63,7 +63,9 @@
      char **rgb;
      int r, g, b;
 
-     rgb = ft_split(ft_strtrim(value, " \t\n"), ',');
+     char *trimmed_value = ft_strtrim(value, " \t\n");
+     rgb = ft_split(trimmed_value, ',');
+     free(trimmed_value);
      if (!rgb || !rgb[0] || !rgb[1] || !rgb[2] || rgb[3])
      {
          // Free memory if split was successful
