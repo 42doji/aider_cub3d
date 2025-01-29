@@ -284,13 +284,15 @@ int parse_map(t_game *game, int fd)
     while ((line = get_next_line(fd)) != NULL)
     {
         printf("Read map line: '%s'\n", line);
-        if (ft_strlen(line) > 0 && !is_all_whitespace(line))
+        char *trimmed_line = ft_strtrim(line, " \t\r\n");
+        free(line);
+        if (ft_strlen(trimmed_line) > 0 && !is_all_whitespace(trimmed_line))
         {
-            game->map.grid[row] = ft_strdup(line);
+            game->map.grid[row] = ft_strdup(trimmed_line);
             if (!game->map.grid[row])
             {
                 ft_putendl_fd("Error: Memory allocation failed for map line.", 2);
-                free(line);
+                free(trimmed_line);
                 for (int i = 0; i < row; i++)
                     free(game->map.grid[i]);
                 free(game->map.grid);
@@ -299,7 +301,7 @@ int parse_map(t_game *game, int fd)
             printf("Stored map line %d: '%s'\n", row + 1, game->map.grid[row]);
             row++;
         }
-        free(line);
+        free(trimmed_line);
     }
     game->map.rows = row;
     game->map.cols = 0;
