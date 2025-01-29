@@ -204,7 +204,7 @@ int validate_map(t_game *game) {
                 player_y = i;
             }
             if (c != '0' && c != '1' && c != 'N' && c != 'S' && c != 'E' && c != 'W' && c != ' ') {
-                fprintf(stderr, "Error: Invalid character '%c' in map at row %d, column %zu.\n", c, i, j);
+                fprintf(stderr, "Error: Invalid character '%c' in map at row %d, column %zu.\n", c, i + 1, j + 1);
                 return 0;
             }
         }
