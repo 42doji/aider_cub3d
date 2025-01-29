@@ -1,2 +1,0 @@
-Line with tab	and spaces
-Line with backslash\ and quote"
