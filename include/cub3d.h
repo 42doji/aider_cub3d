@@ -20,6 +20,6 @@
 # include <string.h>
 # include "struct.h"
 # include "parser.h"
-# include "../libft/libft.h"
+# include "../libftx/libft.h"
 
 #endif // CUB3D_H
