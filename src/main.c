@@ -22,13 +22,11 @@ int main(void)
     int fd;
 
     dir = opendir("src/test");
-    printf("dir: %s\n", getcwd(NULL, 0));
     if (dir == NULL)
     {
         perror("opendir 실패?");
         return (1);
     }
-
     while ((entry = readdir(dir)) != NULL)
     {
         if (strstr(entry->d_name, ".txt") != NULL)
