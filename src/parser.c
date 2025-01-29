@@ -169,37 +169,72 @@ int parse_color(int *color, char *value)
      return (1);
  }
 
-int validate_map(t_game *game)
-{
-    int player_count = 0;
+#include <stdbool.h>
 
-    for (int i = 0; i < game->map.rows; i++)
-    {
-        for (size_t j = 0; j < ft_strlen(game->map.grid[i]); j++)
-        {
+bool flood_fill(char **grid, bool **visited, int x, int y, int rows, int cols) {
+    if (x < 0 || x >= cols || y < 0 || y >= rows)
+        return true;
+
+    if (visited[y][x] || grid[y][x] == '1')
+        return false;
+
+    visited[y][x] = true;
+
+    int dx[4] = {1, -1, 0, 0};
+    int dy[4] = {0, 0, 1, -1};
+
+    for (int i = 0; i < 4; i++) {
+        if (flood_fill(grid, visited, x + dx[i], y + dy[i], rows, cols))
+            return true;
+    }
+
+    return false;
+}
+
+int validate_map(t_game *game) {
+    int player_count = 0;
+    int player_x = -1, player_y = -1;
+
+    for (int i = 0; i < game->map.rows; i++) {
+        for (int j = 0; j < ft_strlen(game->map.grid[i]); j++) {
             char c = game->map.grid[i][j];
-            if (c == 'N' || c == 'S' || c == 'E' || c == 'W')
+            if (c == 'N' || c == 'S' || c == 'E' || c == 'W') {
                 player_count++;
-            if ((i == 0 || i == game->map.rows - 1 || j == 0 || j == ft_strlen(game->map.grid[i]) - 1) && c != '1')
-            {
-                ft_putendl_fd("Error: Map is not enclosed by walls.", 2);
-                return (0);
+                player_x = j;
+                player_y = i;
             }
-            if (c == '0' && (i == 0 || i == game->map.rows - 1 || j == 0 || j == ft_strlen(game->map.grid[i]) - 1))
-            {
-                ft_putendl_fd("Error: Map is not enclosed by walls.", 2);
-                return (0);
+            if (c != '0' && c != '1' && c != 'N' && c != 'S' && c != 'E' && c != 'W' && c != ' ') {
+                ft_putendl_fd("Error: Invalid character in map.", 2);
+                return 0;
             }
         }
     }
 
-    if (player_count != 1)
-    {
+    if (player_count != 1) {
         ft_putendl_fd("Error: Map must have exactly one player start position.", 2);
-        return (0);
+        return 0;
     }
 
-    return (1);
+    bool **visited = ft_calloc(game->map.rows, sizeof(bool *));
+    for (int i = 0; i < game->map.rows; i++) {
+        visited[i] = ft_calloc(ft_strlen(game->map.grid[i]), sizeof(bool));
+    }
+
+    if (flood_fill(game->map.grid, visited, player_x, player_y, game->map.rows, ft_strlen(game->map.grid[0]))) {
+        ft_putendl_fd("Error: Map is not enclosed by walls.", 2);
+        for (int i = 0; i < game->map.rows; i++) {
+            free(visited[i]);
+        }
+        free(visited);
+        return 0;
+    }
+
+    for (int i = 0; i < game->map.rows; i++) {
+        free(visited[i]);
+    }
+    free(visited);
+
+    return 1;
 }
 
 int parse_map(t_game *game, int fd)
