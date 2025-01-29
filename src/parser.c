@@ -184,8 +184,12 @@ int parse_color(int *color, char *value)
      {
          if (ft_strlen(line) > 0 && !is_all_whitespace(line))
          {
-             free(line);
-             break;
+             // If the line is not a configuration line, it should be part of the map
+             if (!is_configuration_line(line))
+             {
+                 free(line);
+                 break;
+             }
          }
          free(line);
      }
